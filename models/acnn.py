@@ -1,13 +1,10 @@
 import torch
 import lava.lib.dl.slayer as slayer
-from lava.lib.dl.slayer.block.cuba import Flatten
-from lava.lib.dl.slayer.block.cuba import Dense
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
 from .accumulator import AccumulateConv
-from math import floor
 
 
 class AccCnn(torch.nn.Module):
@@ -18,18 +15,18 @@ class AccCnn(torch.nn.Module):
 
     # Conv Layers
     self.convs = torch.nn.ModuleList([
-      nn.Conv2d(4, 8, kernel_size=3, stride=1, padding=1),
-      nn.Conv2d(8, 16, kernel_size=3, stride=1, padding=1),
-      nn.Conv2d(16, 32, kernel_size=3, stride=1, padding=1),
-      nn.Conv2d(32, 64, kernel_size=3, stride=1, padding=1),
-      nn.Conv2d(64, 128, kernel_size=3, stride=1, padding=1),
-      nn.Conv2d(128, 256, kernel_size=3, stride=1, padding=1),
+      nn.Conv2d(4, 4, kernel_size=3, stride=2, padding=1),
+      nn.Conv2d(4, 8, kernel_size=3, stride=2, padding=1),
+      nn.Conv2d(8, 16, kernel_size=3, stride=2, padding=1),
+      nn.Conv2d(16, 32, kernel_size=3, stride=2, padding=1),
+      nn.Conv2d(32, 64, kernel_size=3, stride=2, padding=1),
+      nn.Conv2d(64, 128, kernel_size=3, stride=2, padding=1),
     ])
 
     # Dense Layers
     self.dense = torch.nn.ModuleList([
-      nn.Linear(2*2*256, 512),
-      nn.Linear(512, 128),
+      nn.Linear(2*2*128, 2056),
+      nn.Linear(2056, 128),
     ])
 
     # Output layer
@@ -44,7 +41,6 @@ class AccCnn(torch.nn.Module):
     for conv in self.convs[:]: 
       x = conv(x)
       x = F.relu(x)
-      x = F.max_pool2d(x, 2)
 
     x = torch.flatten(x, 1)
 

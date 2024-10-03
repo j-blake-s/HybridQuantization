@@ -12,14 +12,13 @@ from utils.qtrain import train, qtest
 args = args_parser()
 
 # Choose model
-from utils.hybrid import get_model as hnn
-from utils.acnn import get_model as acnn
-from utils.snn import get_model as snn
-get_model, model_desc = {
-  "hnn" : (hnn, "Hybrid Model"),
-  "acnn": (acnn,"Accumulate-CNN Model"),
-  "snn" : (snn, "SNN Model"),
-}[args.model]
+from models.snn import get_model
+
+# get_model, model_desc = {
+#   "hnn" : (hnn, "Hybrid Model"),
+#   "acnn": (acnn,"Accumulate-CNN Model"),
+#   "snn" : (snn, "SNN Model"),
+# }[args.model]
 
 # Create Save Directory
 args.save_path = os.path.join(args.save_folder, args.save_name)
@@ -39,7 +38,7 @@ else:
 # Print Info
 print("="*40)
 print(f'[Output] Saving to {args.save_path}')
-print(f'[Model]\t {model_desc}')
+# print(f'[Model]\t {model_desc}')
 print(f'[Device] {args.device}')
 
 ### Load Model ###

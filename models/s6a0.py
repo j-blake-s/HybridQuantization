@@ -4,12 +4,6 @@ import torch.nn.functional as F
 from lava.lib.dl.slayer.block.cuba import Conv as SpkConv
 from .accumulator import AccumulateConv as Accumulator
 
-# def cuba_pool(params, stride=2, delay_shift=True):
-#   return slayer.block.cuba.Pool(
-#     params, 2, stride=stride, delay=False, delay_shift=False
-#   )
-
-
 class SNN(nn.Module):
   def __init__(self):
     super().__init__()
@@ -24,42 +18,45 @@ class SNN(nn.Module):
 
     self.net = nn.Sequential(
       SpkConv(params, 2, 4, kernel_size=3, stride=2, padding=1),
+      SpkDrop(0.05),
+      SpkConv(params, 4, 8, kernel_size=3, stride=2, padding=1),
+      SpkDrop(0.05),
+      SpkConv(params, 8, 16, kernel_size=3, stride=2, padding=1),
+      SpkDrop(0.05),
+      SpkConv(params, 16, 32, kernel_size=3, stride=2, padding=1),
+      SpkDrop(0.05),
+      SpkConv(params, 32, 64, kernel_size=3, stride=2, padding=1),
+      SpkDrop(0.05),
+      SpkConv(params, 64, 128, kernel_size=3, stride=2, padding=1),
+      SpkDrop(0.05),
     )
+
+    self.output_channels = self.net[-1].synapse.weight.shape[0]
 
   def forward(self, x):
     return self.net(x)
 
 
-
-
-
 class ANN(nn.Module):
-  def __init__(self, interval=8):
+  def __init__(self, in_channels, timesteps, interval):
     super().__init__()
 
     self.net = nn.Sequential(
 
       Accumulator(interval=interval),
       
-      nn.Conv2d( 8,  16, kernel_size=3, stride=2, padding=1),
+      nn.Conv2d( in_channels*(timesteps//interval), 128, kernel_size=1, stride=1, padding=0),
       nn.ReLU(),
       
-      nn.Conv2d(16,  32, kernel_size=3, stride=2, padding=1),
-      nn.ReLU(),
-      
-      nn.Conv2d(32,  64, kernel_size=3, stride=2, padding=1),
-      nn.ReLU(),
-      
-      nn.Conv2d(64,  128, kernel_size=3, stride=2, padding=1),
-      nn.ReLU(),
-
       nn.Flatten(),
       
-      nn.Linear(4*4*128, 512),
+      nn.Linear(2*2*128, 2056),
       nn.ReLU(),
+      nn.Dropout(0.25),
       
-      nn.Linear(512, 128),
+      nn.Linear(2056, 128),
       nn.ReLU(),
+      nn.Dropout(0.25),
       
       nn.Linear(128, 11)
     )  
@@ -73,11 +70,11 @@ class ANN(nn.Module):
 
 class HNN(torch.nn.Module):
 
-  def __init__(self, interval=8):
+  def __init__(self, timesteps, interval):
     super().__init__()
 
     self.snn = SNN()
-    self.ann = ANN(interval=interval)
+    self.ann = ANN(self.snn.output_channels, timesteps, interval)
 
   def forward(self, x):
     if self.training:
@@ -88,7 +85,7 @@ class HNN(torch.nn.Module):
       return self.ann(qx)
 
 def get_model(args):
-  model = HNN()
+  model = HNN(timesteps=16, interval=8)
   optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
   error = torch.nn.CrossEntropyLoss().to(args.device)
   classer = lambda x: torch.argmax(x,axis=-1)
