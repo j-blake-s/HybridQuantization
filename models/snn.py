@@ -5,14 +5,8 @@ import lava.lib.dl.slayer as slayer
 
 from lava.lib.dl.slayer.block.cuba import Conv as SpkConv
 from lava.lib.dl.slayer.block.cuba import Dense as SpkDense
+from .util import SpkDrop
 
-class SpkDrop(torch.nn.Dropout3d):
-  def forward(self, input):
-    input_shape = input.shape
-    return F.dropout3d(
-      input.reshape((input_shape[0], -1, 1, 1, input_shape[-1])),
-      self.p, self.training, self.inplace
-    ).reshape(input_shape) * (1-self.p)
 
 class SNN(torch.nn.Module):
 
@@ -40,7 +34,6 @@ class SNN(torch.nn.Module):
       SpkConv(params, 32, 64, kernel_size=3, stride=2, padding=1),
       SpkDrop(0.05),
       SpkConv(params, 64, 128, kernel_size=3, stride=2, padding=1),
-      SpkDrop(0.05),
     )
 
     self.dense = nn.Sequential(

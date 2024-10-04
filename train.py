@@ -12,13 +12,25 @@ from utils.qtrain import train, qtest
 args = args_parser()
 
 # Choose model
-from models.snn import get_model
+from models.s6a0 import get_model as s6a0
+from models.s5a1 import get_model as s5a1
+from models.s4a2 import get_model as s4a2
+from models.s3a3 import get_model as s3a3
+from models.s2a4 import get_model as s2a4
+from models.s1a5 import get_model as s1a5
+from models.snn import get_model as snn
+from models.acnn import get_model as acnn
 
-# get_model, model_desc = {
-#   "hnn" : (hnn, "Hybrid Model"),
-#   "acnn": (acnn,"Accumulate-CNN Model"),
-#   "snn" : (snn, "SNN Model"),
-# }[args.model]
+get_model, model_desc = {
+  "acnn": (acnn,"Accumulate-CNN Model"),
+  "s1a5" : (s1a5, "S1A5 Hybrid Model"),
+  "s2a4" : (s2a4, "S1A5 Hybrid Model"),
+  "s3a3" : (s3a3, "S1A5 Hybrid Model"),
+  "s4a2" : (s4a2, "S1A5 Hybrid Model"),
+  "s5a1" : (s5a1, "S1A5 Hybrid Model"),
+  "s6a0" : (s6a0, "S1A5 Hybrid Model"),
+  "snn" : (snn, "SNN Model"),
+}[args.model]
 
 # Create Save Directory
 args.save_path = os.path.join(args.save_folder, args.save_name)
@@ -36,14 +48,18 @@ else:
   import numpy as lib
 
 # Print Info
-print("="*40)
-print(f'[Output] Saving to {args.save_path}')
+# print("="*40)
+# print(f'[Output] Saving to {args.save_path}')
 # print(f'[Model]\t {model_desc}')
-print(f'[Device] {args.device}')
+# print(f'[Device] {args.device}')
 
 ### Load Model ###
 model, optimizer, error, classer = get_model(args)
 model.to(args.device)
+
+
+print(model)
+quit()
 
 ### Load Data ###
 def augment(x):

@@ -3,6 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from lava.lib.dl.slayer.block.cuba import Conv as SpkConv
 from .accumulator import AccumulateConv as Accumulator
+from .util import SpkDrop
 
 class SNN(nn.Module):
   def __init__(self):
@@ -28,7 +29,6 @@ class SNN(nn.Module):
       SpkConv(params, 32, 64, kernel_size=3, stride=2, padding=1),
       SpkDrop(0.05),
       SpkConv(params, 64, 128, kernel_size=3, stride=2, padding=1),
-      SpkDrop(0.05),
     )
 
     self.output_channels = self.net[-1].synapse.weight.shape[0]
