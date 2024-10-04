@@ -2,10 +2,6 @@ import numpy as np
 from torch.utils.data import Dataset
 
 
-def h_flip(image, lib=np):
-  if np.random.rand(1) < 0.5:
-    return lib.flip(image, axis=-2)
-  return image
 
 def temporal_jitter(image, max_shift=3, lib=np):
   dt = np.random.randint(-max_shift, high=max_shift+1)

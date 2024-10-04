@@ -1,3 +1,4 @@
+import sys
 import os
 import torch
 import numpy as np
@@ -10,6 +11,9 @@ from utils.qtrain import train, qtest
 
 ### Load Args ###
 args = args_parser()
+if args.data_path is None: 
+  print(f'Missing arg --data_path | python {sys.argv[0]} --data_path <path_to_folder>')
+  quit()
 
 # Choose model
 from models.s6a0 import get_model as s6a0
@@ -47,26 +51,25 @@ else:
   args.device = "cpu"
   import numpy as lib
 
-# Print Info
-# print("="*40)
-# print(f'[Output] Saving to {args.save_path}')
-# print(f'[Model]\t {model_desc}')
-# print(f'[Device] {args.device}')
-
 ### Load Model ###
 model, optimizer, error, classer = get_model(args)
 model.to(args.device)
 
 
-print(model)
-quit()
-
 ### Load Data ###
-def augment(x):
-  cx = lib.asarray(x)
-  cx = temporal_jitter(cx, max_shift=4, lib=lib)
-  cx = spatial_jitter(cx, max_shift=20, lib=lib)
-  return np.asarray(cx)
+if args.gpu:
+  import cupy as cp
+  def augment(x):
+    cx = cp.asarray(x)
+    cx = temporal_jitter(cx, max_shift=4, lib=cp)
+    cx = spatial_jitter(cx, max_shift=20, lib=cp)
+    return np.asarray(cx)
+
+else:
+  def augment(x):
+    x = temporal_jitter(cx, max_shift=4, lib=np)
+    x = spatial_jitter(cx, max_shift=20, lib=np)
+    return x
 
 train_path = os.path.join(args.data_path,"train.npz")
 print(f'Loading samples...',end="\r")
