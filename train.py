@@ -46,10 +46,8 @@ args.model_log_path = os.path.join(args.save_path, "model_log.txt")
 # Define device
 if args.gpu:
   args.device = "cuda:" + str(args.core)
-  import cupy as lib
 else:
   args.device = "cpu"
-  import numpy as lib
 
 ### Load Model ###
 model, optimizer, error, classer = get_model(args)
@@ -57,24 +55,22 @@ model.to(args.device)
 
 
 ### Load Data ###
-if args.gpu:
-  import cupy as cp
-  def augment(x):
-    cx = cp.asarray(x)
-    cx = temporal_jitter(cx, max_shift=4, lib=cp)
-    cx = spatial_jitter(cx, max_shift=20, lib=cp)
-    return np.asarray(cx)
 
-else:
-  def augment(x):
-    x = temporal_jitter(cx, max_shift=4, lib=np)
-    x = spatial_jitter(cx, max_shift=20, lib=np)
-    return x
+
+
+from torchsummary import summary
+summary(model, input_size=(2, 128, 128, 16))
+
+
+quit()
+def augment(x):
+  x = temporal_jitter(x, max_shift=4, lib=np)
+  x = spatial_jitter(x, max_shift=20, lib=np)
+  return x
 
 train_path = os.path.join(args.data_path,"train.npz")
 print(f'Loading samples...',end="\r")
-# training = DvsGesture(train_path,transform=None)
-training = DvsGesture(train_path,transform=augment)
+training = DvsGesture(train_path)
 train_loader = DataLoader(dataset=training, batch_size=args.batch_size, shuffle=True, drop_last=True)
 print(f'Found {len(training):,} training samples...') 
 

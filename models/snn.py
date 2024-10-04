@@ -49,6 +49,7 @@ class SNN(torch.nn.Module):
   def forward(self, x):
 
     B, C, H, W, T = x.shape
+
     x = self.conv(x)
 
     x = x.reshape(B,-1,T)
