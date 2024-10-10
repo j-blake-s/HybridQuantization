@@ -58,11 +58,8 @@ model.to(args.device)
 
 
 
-from torchsummary import summary
-summary(model, input_size=(2, 128, 128, 16))
 
 
-quit()
 def augment(x):
   x = temporal_jitter(x, max_shift=4, lib=np)
   x = spatial_jitter(x, max_shift=20, lib=np)
