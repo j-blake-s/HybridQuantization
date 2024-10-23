@@ -39,7 +39,7 @@ def train(model, data, opt, loss_fn, classifier, args):
 
 
 
-from .quant import dequantize_tensor
+from .quant import dequant
 def qtest(model, data, classifier, args):
   model.eval()
   total_samples = 0
@@ -54,7 +54,7 @@ def qtest(model, data, classifier, args):
       # images = torch.quantize_per_tensor(images, scale=1, zero_point=0, dtype=torch.quint8)
       # labels = labels.to(args.device)
       outputs = model(images)
-      outputs = dequantize_tensor(outputs)
+      outputs = dequant(outputs)
 
       # Stats #
       total_samples += images.shape[0]

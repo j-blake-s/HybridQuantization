@@ -2,13 +2,21 @@ import torch.quantization
 import torch
 
 
-def dequantize_tensor(qx):
+def dequant(qx):
+
   x = torch.zeros(size=qx.shape)
   for i in range(x.shape[0]):
-    for j in range(x.shape[1]):
-      x[i,j] = qx[i,j].item()
-
+    x[i] = x[i].item() if len(x.shape) == 1 else dequant(x[i])
+  
   return x
+
+# def dequantize_tensor(qx):
+#   x = torch.zeros(size=qx.shape)
+#   for i in range(x.shape[0]):
+#     for j in range(x.shape[1]):
+#       x[i,j] = qx[i,j].item()
+
+#   return x
 
 def quantize_model(model, sample_data, backend='x86'):
 
@@ -44,8 +52,7 @@ def quantized_inference(qmodel, data, scale=1.0, zero_point=0):
 
       # Run Model      
       qout = qmodel(qx)
-
-      outputs = dequantize_tensor(qout)
+      outputs = dequant(qout)
 
       # Get Accuracy
       total_samples += x.shape[0]
