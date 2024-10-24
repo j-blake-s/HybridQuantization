@@ -6,12 +6,13 @@ def args_parser():
     parser.add_argument('--epochs', type=int, default=20, help="rounds of training")
     parser.add_argument('--batch_size', type=int, default=32)
     parser.add_argument('--batch_rate', type=int, default=1)
-    parser.add_argument('--core', type=int, default=1)
+    ##TODO ask Blake about this core, I changed to 0
+    parser.add_argument('--core', type=int, default=0)
     parser.add_argument('--gpu', action='store_true')
     parser.add_argument('--data_path', type=str)
     parser.add_argument('--save_name', type=str, default="default_model")
     parser.add_argument('--save_folder', type=str, default="./saved_models")
-    parser.add_argument('--model', type=str, default="snn")
+    parser.add_argument('--model', type=str, default="acnn")
     parser.add_argument('--lr', type=float, default=0.0001)
 
 

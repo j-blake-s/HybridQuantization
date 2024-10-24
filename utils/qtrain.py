@@ -31,7 +31,7 @@ def train(model, data, opt, loss_fn, classifier, args):
     # Print Stats #
     acc = total_correct_samples / total_samples
 
-    print(f'\r\tBatch [{i+1}/{len(data)}] Training: {acc:.2%}',end="")
+    # print(f'\r\tBatch [{i+1}/{len(data)}] Training: {acc:.2%}',end="")
 
   opt.step()
   opt.zero_grad()
@@ -64,5 +64,5 @@ def qtest(model, data, classifier, args):
       # Print Stats #
       acc = total_correct_samples / total_samples
 
-      print(f'\r\tBatch [{i+1}/{len(data)}] Validation: {acc:.2%}',end="")
+      # print(f'\r\tBatch [{i+1}/{len(data)}] Validation: {acc:.2%}',end="")
   return acc

@@ -35,8 +35,10 @@ class AccCnn(torch.nn.Module):
 
 
   def forward(self, x):
-
+    if not self.training:
+      x = torch.quantize_per_tensor(x, scale=1, zero_point=0, dtype=torch.quint8)
     x = self.accumulator(x)
+
 
     for conv in self.convs[:]: 
       x = conv(x)

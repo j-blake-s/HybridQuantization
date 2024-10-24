@@ -61,7 +61,7 @@ def quantized_inference(qmodel, data, scale=1.0, zero_point=0):
 
       acc = total_correct_samples / total_samples
 
-      print(f'\rBatch [{i+1}/{len(data)}] Validation: {acc:.2%}',end="")
+      # print(f'\rBatch [{i+1}/{len(data)}] Validation: {acc:.2%}',end="")
   print(f'\rValidation: {acc:.2%}                                   ')
   return acc
 
