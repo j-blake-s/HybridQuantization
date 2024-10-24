@@ -3,20 +3,19 @@ import torch
 
 
 def dequant(qx):
-
   x = torch.zeros(size=qx.shape)
-  for i in range(x.shape[0]):
-    x[i] = x[i].item() if len(x.shape) == 1 else dequant(x[i])
-  
+
+  if len(qx.shape) == 2:
+    for i in range(x.shape[0]):
+      for j in range(x.shape[1]):
+        x[i,j] = qx[i,j].item()
+
+  elif len(qx.shape) == 3:
+    for i in range(x.shape[0]):
+      for j in range(x.shape[1]):
+        for z in range(x.shape[2]):
+          x[i,j] = qx[i,j,z].item()
   return x
-
-# def dequantize_tensor(qx):
-#   x = torch.zeros(size=qx.shape)
-#   for i in range(x.shape[0]):
-#     for j in range(x.shape[1]):
-#       x[i,j] = qx[i,j].item()
-
-#   return x
 
 def quantize_model(model, sample_data, backend='x86'):
 
