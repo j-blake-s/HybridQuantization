@@ -85,7 +85,7 @@ class HNN(torch.nn.Module):
       return self.ann(qx)
 
 def get_model(args):
-  model = HNN(timesteps=16, interval=8)
+  model = HNN(timesteps=16, interval=args.interval)
   optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
   error = torch.nn.CrossEntropyLoss().to(args.device)
   classer = lambda x: torch.argmax(x,axis=-1)
