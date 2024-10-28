@@ -8,14 +8,14 @@ from .accumulator import AccumulateConv
 
 
 class AccCnn(torch.nn.Module):
-  def __init__(self, num_classes, accumulate_interval=8):
+  def __init__(self, num_classes, timesteps=16, interval=8):
     super(AccCnn, self).__init__()
 
-    self.accumulator = AccumulateConv(accumulate_interval)    
+    self.accumulator = AccumulateConv(interval)    
 
     # Conv Layers
     self.convs = torch.nn.ModuleList([
-      nn.Conv2d(4, 4, kernel_size=3, stride=2, padding=1),
+      nn.Conv2d(2*(timesteps//interval), 4, kernel_size=3, stride=2, padding=1),
       nn.Conv2d(4, 8, kernel_size=3, stride=2, padding=1),
       nn.Conv2d(8, 16, kernel_size=3, stride=2, padding=1),
       nn.Conv2d(16, 32, kernel_size=3, stride=2, padding=1),
@@ -59,7 +59,7 @@ class AccCnn(torch.nn.Module):
 
 
 def get_model(args):
-  model = AccCnn(args.classes)
+  model = AccCnn(args.classes, timesteps=16, interval=args.interval)
   optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
   error = torch.nn.CrossEntropyLoss().to(args.device)
   classer = lambda x: torch.argmax(x,axis=-1)
