@@ -5,6 +5,7 @@ def args_parser():
     parser.add_argument('--classes', type=int, default=11, help="number of classes")
     parser.add_argument('--epochs', type=int, default=20, help="rounds of training")
     parser.add_argument('--batch_size', type=int, default=32)
+    parser.add_argument('--interval', type=int, default=8)
     parser.add_argument('--batch_rate', type=int, default=1)
     ##TODO ask Blake about this core, I changed to 0
     parser.add_argument('--core', type=int, default=0)
