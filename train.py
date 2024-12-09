@@ -45,11 +45,7 @@ args.model_log_path = os.path.join(args.save_path, "model_log.txt")
 
 # Define device
 if args.gpu:
-  print(torch.cuda.is_available())
-  print(torch.cuda.current_device())
-  print(torch.cuda.device_count())
   args.device = "cuda:" + str(args.core)
-  print(args.device)
 else:
   args.device = "cpu"
 
@@ -87,7 +83,6 @@ torch.ao.quantization.prepare_qat(model, inplace=True)
 ### Train ###
 for epoch in range(args.epochs):
   model.to(args.device)
-  print("Before training!")
   train_acc = train(model, train_loader, optimizer, error, classer, args)
   
   if epoch > 3:
