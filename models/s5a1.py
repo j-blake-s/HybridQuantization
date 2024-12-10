@@ -68,22 +68,23 @@ class ANN(nn.Module):
 
 class HNN(torch.nn.Module):
 
-  def __init__(self, timesteps, interval):
+  def __init__(self, timesteps, interval, quant=True):
     super().__init__()
 
+    self.quant = quant
     self.snn = SNN()
     self.ann = ANN(self.snn.output_channels, timesteps, interval)
 
   def forward(self, x):
-    if self.training:
-      return self.ann(self.snn(x))
+    x = self.snn(x)
+    if self.training or not self.quant:
+      return self.ann(x)
     else:
-      x = self.snn(x)
       qx = torch.quantize_per_tensor(x, scale=1, zero_point=0, dtype=torch.quint8)
       return self.ann(qx)
 
 def get_model(args):
-  model = HNN(timesteps=16, interval=args.interval)
+  model = HNN(timesteps=16, interval=args.interval, quant=(not args.no_quant))
   optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
   error = torch.nn.CrossEntropyLoss().to(args.device)
   classer = lambda x: torch.argmax(x,axis=-1)

@@ -7,6 +7,7 @@ import lava.lib.dl.slayer as slayer
 from torch.utils.data import DataLoader
 from utils.argparser import args_parser
 from utils.qtrain import train, qtest
+from utils.train import test
 
 
 ### Load Args ###
@@ -55,11 +56,6 @@ model.to(args.device)
 
 
 ### Load Data ###
-
-
-
-
-
 def augment(x):
   x = temporal_jitter(x, max_shift=4, lib=np)
   x = spatial_jitter(x, max_shift=20, lib=np)
@@ -77,20 +73,26 @@ test_loader = DataLoader(dataset=testing, batch_size=args.batch_size, shuffle=Tr
 print(f'Found {len(testing):,} testing samples...') 
 
 
-model.qconfig = torch.ao.quantization.get_default_qat_qconfig('x86')
-torch.ao.quantization.prepare_qat(model, inplace=True)
+if not args.no_quant:
+  model.qconfig = torch.ao.quantization.get_default_qat_qconfig('x86')
+  torch.ao.quantization.prepare_qat(model, inplace=True)
 
 ### Train ###
 for epoch in range(args.epochs):
   model.to(args.device)
   train_acc = train(model, train_loader, optimizer, error, classer, args)
   
-  if epoch > 3:
-    model.apply(torch.ao.quantization.disable_observer)
+  if not args.no_quant:
+    if epoch > 3:
+      model.apply(torch.ao.quantization.disable_observer)
+    
+    model.to("cpu")
+    qmodel = torch.ao.quantization.convert(model.eval(), inplace=False)
+    qmodel.eval()
   
-  model.to("cpu")
-  qmodel = torch.ao.quantization.convert(model.eval(), inplace=False)
-  qmodel.eval()
+    test_acc = qtest(qmodel, test_loader, classer, args)
   
-  test_acc = qtest(qmodel, test_loader, classer, args)
+  else:
+    test_acc = test(model, test_loader, classer, args)
+
   print(f'Epoch [{epoch+1}/{args.epochs}] Validation: {test_acc:.2%}')

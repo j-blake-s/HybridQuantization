@@ -10,6 +10,7 @@ def args_parser():
     ##TODO ask Blake about this core, I changed to 0
     parser.add_argument('--core', type=int, default=0)
     parser.add_argument('--gpu', action='store_true')
+    parser.add_argument('--no_quant', action='store_true')
     parser.add_argument('--data_path', type=str)
     parser.add_argument('--save_name', type=str, default="default_model")
     parser.add_argument('--save_folder', type=str, default="./saved_models")
