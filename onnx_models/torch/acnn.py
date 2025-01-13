@@ -4,15 +4,11 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from .accumulator import AccumulateConv
-
-
 class AccCnn(torch.nn.Module):
   def __init__(self, num_classes, timesteps=16, interval=8, quant=True):
     super(AccCnn, self).__init__()
 
     self.quant = quant
-    self.accumulator = AccumulateConv(interval)    
 
     # Conv Layers
     self.convs = torch.nn.ModuleList([
@@ -39,7 +35,6 @@ class AccCnn(torch.nn.Module):
 
     if not self.training and self.quant:
       x = torch.quantize_per_tensor(x, scale=1, zero_point=0, dtype=torch.quint8)
-    x = self.accumulator(x)
 
 
     for conv in self.convs[:]: 
@@ -68,3 +63,9 @@ def get_model(args):
   error = torch.nn.CrossEntropyLoss().to(args.device)
   classer = lambda x: torch.argmax(x,axis=-1)
   return model, optimizer, error, classer
+
+
+
+model = AccCnn(11, timesteps=16, interval=2, quant=False)
+n_parameters = sum(p.numel() for p in model.parameters() if p.requires_grad)
+print(f"number of params: {n_parameters}")
